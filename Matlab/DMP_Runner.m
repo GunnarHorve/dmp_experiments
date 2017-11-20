@@ -58,6 +58,10 @@ classdef DMP_Runner < handle
        
        function setStart(obj, y)
           obj.y = y;
+          obj.G = y;
+          obj.g = y;
+          obj.y0 = y;
+          obj.s = 1;
        end       
        
        % Generates one time-step of a DMP trajectory
@@ -108,7 +112,7 @@ function [w, D, c, dG, A, s, y0] = readInXml(fileName);
           
           weights = xml.getElementsByTagName('weights').item(0).getChildNodes();
           weight = weights.getFirstChild();
-          w = [];
+          w = []';
           while ~isempty(weight)
               if strcmp(weight.getNodeName(), 'w')
                   w = [w, str2double(weight.getTextContent)];
@@ -118,7 +122,7 @@ function [w, D, c, dG, A, s, y0] = readInXml(fileName);
       
           inv_sq_vars = xml.getElementsByTagName('inv_sq_var').item(0).getChildNodes();
           inv_sq_var = inv_sq_vars.getFirstChild();
-          D = [];
+          D = []';
           while ~isempty(inv_sq_var)
               if strcmp(inv_sq_var.getNodeName(), 'd')
                   D = [D, str2double(inv_sq_var.getTextContent)];
@@ -135,6 +139,9 @@ function [w, D, c, dG, A, s, y0] = readInXml(fileName);
               end
               mean = mean.getNextSibling();
           end
+          w = w';
+          c = c';
+          D = D';
           
           dG = str2double(xml.getElementsByTagName('dG').item(0).getTextContent());
           A = str2double(xml.getElementsByTagName('A').item(0).getTextContent());

@@ -16,7 +16,7 @@ import simple_trajectories
 #from DMP_test import runner
 
 #Name of the file
-name = 'Simple_dmps.xml'
+name = 'test.xml'
 
 #Set no. of basis functions
 n_rfs = 200
@@ -26,19 +26,22 @@ dt = 0.001
 
 
 ##### TRAJECTORY  FOR TRAINING ########
-''' Available trajectories: 
+""" Available trajectories: 
     Linear = simple_trajectories.y_lin_trajectory(dt)
     Exponential = simple_trajectories.y_exp_trajectory(dt)
     Step = simple_trajectories.y_step_trajectory(dt)
-'''
-T = simple_trajectories.y_lin_trajectory(dt)
-
-
+    Baxter_s0 = simple_trajectories.bax_trajectory(dt,x) [x = 9 to x = 15 for the 7 baxter joints]
+"""
+T = simple_trajectories.bax_trajectory(dt,9)
+#T = simple_trajectories.y_exp_trajectory(dt)
 #Obtain w, c & D (in that order) from below function, and generate XML file
 Important_values = train_dmp(name, n_rfs, T, dt)
 
-start = 0
-goal = 1
+start = 0.266
+goal = 1.1539
+#start = 0
+#goal = 1
+
 my_runner = DMP_runner(name,start,goal)
 
 Y = []

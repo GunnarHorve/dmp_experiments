@@ -86,6 +86,13 @@ class DMP_runner():
     """
     def setStart(self, start_val):
         self.y = start_val
+        self.G = start_val
+        self.g = start_val
+        self.y0 = start_val
+        self.s = 1
+        
+        #Minor Change here
+        
 
     """
         Changes the goal position of the DMP
@@ -138,5 +145,5 @@ def readInXML(runner, filename):
 
     runner.dG = float(root.findall("dG")[0].text)
     runner.A = float(root.findall("A")[0].text)
-    runner.s = float(root.findall("s")[0].text)
-    runner.y0 = float(root.findall("y0")[0].text)
+    #runner.s = float(root.findall("s")[0].text)
+    #runner.y0 = float(root.findall("y0")[0].text)

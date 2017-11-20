@@ -33,30 +33,28 @@ def train_dmp(name, n_rfs, T, dt):
     
     t_con = np.divide(1,float(n_rfs-1))
     t = list(float(i) for i in np.arange(0,1+t_con,t_con))
-    
+
     ######## BUG FIX FOR CERTAIN RANGES OF N_RFS, FIND ELABORATE SOLUTION LATER #######################
     for i in range(0,len(t)):
         if t[i] > 1:
             t.remove(t[i])
+        t[i] = float("{0:.4f}".format(t[i]))
     ###################################################################################################
     
     np.reshape(t,(n_rfs,1))
-    
     #Canonical Function
     Pc1 = (np.multiply(np.divide(alpha_z,float(2)),t))+1
     Pc2 = np.exp(np.multiply(np.divide(float(-alpha_z),2),t))
-    c = np.multiply(Pc1,Pc2)
+    #c = np.multiply(Pc1,Pc2)
+    c = Pc1*Pc2
     
     # Misc. Memory Allocations
-    D = np.power(np.multiply(np.diff(c),0.55),2);
-    D = np.append(D,D[-1])
-    D = np.divide(1,D)
-    
+    D = np.power((np.diff(c)*0.55),2)
+    D = np.divide(1,np.append(D,D[-1]))
     #the start state is the first state in the trajectory
     y0 = T[0]
     g = y0
     goal = T[-1]
-    
     #compute the hidden states
     X = np.zeros(len(T))
     V = np.zeros(len(T))
@@ -76,7 +74,6 @@ def train_dmp(name, n_rfs, T, dt):
         x    = np.multiply(xd,dt)+x
         v    = np.multiply(vd,dt)+v
         g    = np.multiply(gd,dt)+g
-        
     dG = goal - y0
     A  = np.amax(T)-np.amin(T)
     s = 1 #for fitting a new primitive, the scale factor is always equal to one
@@ -84,8 +81,6 @@ def train_dmp(name, n_rfs, T, dt):
     #Forcing term
     Ft  = (Tdd-(np.multiply(alpha_z,(np.multiply(beta_z,(G-T))-Td))))
     Ft_res = np.reshape(Ft,(len(Ft),1))
-    
-    
     PSI1 = np.dot(np.reshape(X,(len(X),1)),np.ones((1,len(c))))
     PSI2 = np.dot(np.ones((len(T),1)),np.reshape(c,(1,n_rfs)))
     PSID = np.dot(np.ones((len(T),1)),np.reshape(D,(1,len(D))))
@@ -93,19 +88,15 @@ def train_dmp(name, n_rfs, T, dt):
     #compute the weights for each local model along the trajectory
     
     PSI = np.exp(np.multiply(np.multiply(-0.5,np.power((PSI1-PSI2),2)),PSID))
-    
     #compute the regression -- (sx2, sxtd)
     sx2_temp = np.dot(np.power(np.reshape(V,(len(V),1)),2),np.ones((1,len(c))))
     sx2 = np.sum(np.multiply(sx2_temp,PSI),0)
-    
+    #######sxtd = sum(((V.*Ft)*ones(1,length(c))).*PSI,1)';
     sxtd_temp = np.dot(np.multiply(np.reshape(V,(len(V),1)),Ft_res),np.ones((1,len(c))))
     sxtd = np.sum(np.multiply(sxtd_temp,PSI),0)    
-    
     #Final weights
     w    = np.divide(sxtd,(sx2+(1.e-10)));
-
     ############XML file creation ############################    
-    
     w_st = ["%.6f" % number for number in w]
     #w_sent = ",".join(w_str )
     
